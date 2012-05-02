@@ -1,5 +1,6 @@
 (ns ring.middleware.anti-forgery
   "Ring middleware to prevent CSRF attacks with an anti-forgery token."
+  (:require [clojure.data.codec.base64 :as b64])
   (:import java.security.SecureRandom
            sun.misc.BASE64Encoder))
 
@@ -10,7 +11,7 @@
 (defn- generate-token []
   (let [seed (byte-array 64)]
     (.nextBytes (SecureRandom/getInstance "SHA1PRNG") seed)
-    (.encode (BASE64Encoder.) seed)))
+    (String. (b64/encode seed))))
 
 (defn- valid-request? [req]
   (let [param-token  (get-in req [:form-params "__anti-forgery-token"])
